@@ -11,6 +11,8 @@ local defaults = {
   nav_file = vim.fn.expand('~') .. '/navigation.txt',
   keymap = '<leader>cn',
   keymap_desc = '[C]ustom [N]avigation',
+  keymap_add = '<leader>ca',
+  keymap_add_desc = '[C]ustom [A]dd to navigation',
   auto_cd = true,
   show_notifications = true,
 }
@@ -25,11 +27,13 @@ function M.setup(options)
   -- Initialize the core module with config
   InitializeConfig(M.config)
   
-  -- Set up keymap
+  -- Set up keymaps
   SetupKeymap(M.config.keymap, M.config.keymap_desc)
+  SetupAddKeymap(M.config.keymap_add, M.config.keymap_add_desc)
 end
 
--- Export function for programmatic use
+-- Export functions for programmatic use
 M.open_navigation = OpenNavigation
+M.add_current_directory = AddCurrentDirectoryToNav
 
 return M

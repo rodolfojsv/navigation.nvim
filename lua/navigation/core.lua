@@ -63,3 +63,80 @@ function OpenNavigation()
     end
   end)
 end
+
+function AddCurrentDirectoryToNav()
+  -- Get the current file path, or fallback to current working directory
+  local current_file = vim.fn.expand('%:p')
+  local path_to_add
+  local item_type
+  
+  -- Check if we're in a netrw buffer
+  local buftype = vim.bo.filetype
+  if buftype == 'netrw' or vim.fn.exists('b:netrw_curdir') == 1 then
+    -- In netrw, get the directory being browsed
+    path_to_add = vim.b.netrw_curdir or vim.fn.getcwd()
+    item_type = 'directory'
+  elseif current_file ~= '' and vim.fn.filereadable(current_file) == 1 then
+    -- A file is open and readable
+    path_to_add = current_file
+    item_type = 'file'
+  else
+    -- No file open or not readable, use current working directory
+    path_to_add = vim.fn.getcwd()
+    item_type = 'directory'
+  end
+  
+  -- Check if the navigation file exists, create if it doesn't
+  local file = io.open(config.nav_file, 'r')
+  local existing_paths = {}
+  
+  if file then
+    -- Read existing paths to avoid duplicates
+    for line in file:lines() do
+      local trimmed = line:match('^%s*(.-)%s*$')
+      if trimmed ~= '' then
+        existing_paths[trimmed] = true
+      end
+    end
+    file:close()
+  end
+  
+  -- Check if path is already in the navigation file
+  if existing_paths[path_to_add] then
+    if config.show_notifications then
+      vim.notify(item_type:gsub("^%l", string.upper) .. ' already in navigation file: ' .. path_to_add, vim.log.levels.INFO)
+    end
+    return
+  end
+  
+  -- Check if the file ends with a newline
+  local needs_newline = false
+  if vim.fn.filereadable(config.nav_file) == 1 then
+    file = io.open(config.nav_file, 'r')
+    if file then
+      file:seek('end', -1)
+      local last_char = file:read(1)
+      if last_char and last_char ~= '\n' and last_char ~= '\r' then
+        needs_newline = true
+      end
+      file:close()
+    end
+  end
+  
+  -- Append the path to the navigation file
+  file = io.open(config.nav_file, 'a')
+  if not file then
+    vim.notify('Failed to open navigation file for writing: ' .. config.nav_file, vim.log.levels.ERROR)
+    return
+  end
+  
+  if needs_newline then
+    file:write('\n')
+  end
+  file:write(path_to_add .. '\n')
+  file:close()
+  
+  if config.show_notifications then
+    vim.notify('Added ' .. item_type .. ' to navigation: ' .. path_to_add, vim.log.levels.INFO)
+  end
+end
