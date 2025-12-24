@@ -70,9 +70,26 @@ function AddCurrentDirectoryToNav()
   local path_to_add
   local item_type
   
-  -- Check if we're in a netrw buffer
+  -- Check if we're in an oil.nvim buffer
   local buftype = vim.bo.filetype
-  if buftype == 'netrw' or vim.fn.exists('b:netrw_curdir') == 1 then
+  if buftype == 'oil' then
+    -- In oil.nvim, try to get the directory from oil API or buffer variable
+    local ok, oil = pcall(require, 'oil')
+    if ok then
+      path_to_add = oil.get_current_dir()
+      if path_to_add then
+        -- Remove trailing slash if present
+        path_to_add = path_to_add:gsub('[\\/]$', '')
+        item_type = 'directory'
+      end
+    end
+    -- Fallback if oil API doesn't work
+    if not path_to_add then
+      path_to_add = vim.fn.getcwd()
+      item_type = 'directory'
+    end
+  -- Check if we're in a netrw buffer
+  elseif buftype == 'netrw' or vim.fn.exists('b:netrw_curdir') == 1 then
     -- In netrw, get the directory being browsed
     path_to_add = vim.b.netrw_curdir or vim.fn.getcwd()
     item_type = 'directory'

@@ -5,8 +5,11 @@ A simple Neovim plugin for quick navigation to frequently accessed files and dir
 ## Features
 
 - **Quick file/directory access** - Navigate to files or directories from a text file list
+- **Add current file/directory** - Quickly add the current file or directory to your navigation list
 - **Smart directory handling** - Automatically changes working directory when selecting a directory
 - **Visual indicators** - Shows `[DIR]` prefix for directories in the selector
+- **Netrw integration** - Works with netrw directory buffers 
+- **Oil integration** - Works with oil.nvim directory buffers 
 - **Configurable** - Customize navigation file path and keymaps
 - **Telescope integration** - Works seamlessly with Telescope after directory changes
 
@@ -42,6 +45,12 @@ require('navigation').setup({
   -- Description for the keymap (shown in which-key, etc.)
   keymap_desc = '[C]ustom [N]avigation',
   
+  -- Keymap to add current file/directory to navigation list
+  keymap_add = '<leader>ca',
+  
+  -- Description for the add keymap
+  keymap_add_desc = '[C]ustom [A]dd to navigation',
+  
   -- Whether to change working directory when selecting a directory
   auto_cd = true,
   
@@ -59,11 +68,7 @@ Create a text file (e.g., `navigation.txt`) with one file or directory path per 
 ```
 C:/Dev/myproject/src/main.lua
 C:/Dev/myproject/tests/
-C:/Users/username/Documents/notes.md
-C:/Projects/work/
-```
-
-### Using the Plugin
+#### Opening Files/Directories
 
 1. Press your configured keymap (default: `<leader>cn`)
 2. A selector will appear showing all files/directories from your navigation file
@@ -72,8 +77,25 @@ C:/Projects/work/
    - **For files**: Opens the file in the current buffer
    - **For directories**: Changes working directory and opens in file explorer
 
-### Example Workflow
+#### Adding to Navigation List
 
+1. Open a file or navigate to a directory (including netrw)
+2. Press your configured add keymap (default: `<leader>ca`)
+3. The current file or directory will be added to your navigation file
+4. Duplicates are automatically detected and skipped
+5. Notifications will confirm what was added
+1. Press your configured keymap (default: `<leader>cn`)
+2. A selector will appear showing all files/directories from your navigation file
+3. Directories are prefixed with `[DIR]``<leader>cn`)
+- `:NavigationAddCwd` - Adds current file or directory to navigation list (same as `<leader>ca`
+4. Select an entry:
+   - **For files**: Opens the file in the current buffer
+   - **For directories**: Changes working directory and opens in file explorer
+Quick Adding**: When browsing with netrw or editing a file, press `<leader>ca` to instantly add it to your navigation list
+- **Relative vs Absolute Paths**: Use absolute paths in your navigation file for consistency
+- **Mixed Content**: Mix files and directories freely in your navigation file
+- **Quick Edits**: Add `:e C:/path/to/navigation.txt` to quickly edit your navigation file
+- **Smart Detection**: The add command automatically detects if you're in a file, netrw directory, or regular buffer and adds the appropriate path
 ```
 1. Press <leader>cn
 2. Select a project directory (e.g., "C:/Dev/myproject/")
