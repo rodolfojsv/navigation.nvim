@@ -122,6 +122,28 @@ local function CustomSelect(items, opts, on_choice)
   -- Set up keymaps
   local keymap_opts = { buffer = buf, nowait = true, silent = true }
   
+  -- Navigation with wrapping
+  local function move_cursor(direction)
+    local line = vim.api.nvim_win_get_cursor(win)[1]
+    local new_line
+    if direction == 'up' then
+      new_line = line == 1 and #items or line - 1
+    else
+      new_line = line == #items and 1 or line + 1
+    end
+    vim.api.nvim_win_set_cursor(win, {new_line, 0})
+  end
+  
+  -- Move up with wrapping
+  vim.keymap.set('n', '<C-p>', function() move_cursor('up') end, keymap_opts)
+  vim.keymap.set('n', 'k', function() move_cursor('up') end, keymap_opts)
+  vim.keymap.set('n', '<Up>', function() move_cursor('up') end, keymap_opts)
+  
+  -- Move down with wrapping
+  vim.keymap.set('n', '<C-n>', function() move_cursor('down') end, keymap_opts)
+  vim.keymap.set('n', 'j', function() move_cursor('down') end, keymap_opts)
+  vim.keymap.set('n', '<Down>', function() move_cursor('down') end, keymap_opts)
+  
   -- Select item with Enter
   vim.keymap.set('n', '<CR>', function()
     local line = vim.api.nvim_win_get_cursor(win)[1]
